@@ -8,39 +8,43 @@ class Solution:
             return None
         m = len(dungeon)
         n = len(dungeon[0])
-        pprint(dungeon)
         scores = [[None for x in range(n)] for y in range(m)]
-        self.findMinScore(dungeon, scores, m -1, n -1)
-        return (0 - scores[m-1][n-1][1]) +  1 if (0 - scores[m-1][n-1][1]) >= 0 else 1
+        return self.findMinScore(dungeon, scores, 0, 0)
 
     def findMinScore(self, dungeon, scores, m, n):
-        if m == 0 and n == 0:
-            scores[m][n] = [dungeon[m][n], dungeon[m][n]]
-            return
-        if (m - 1) >= 0 and scores[m-1][n] is None:
-            self.findMinScore(dungeon, scores, m-1, n)
-        if (n - 1) >= 0 and scores[m][n-1] is None:
-            self.findMinScore(dungeon, scores, m, n-1)
-        scores[m][n] = [None, None]
-        if m > 0 and n > 0:
-            if scores[m-1][n][1] > scores[m][n-1][1]:
-                scores[m][n][0] = scores[m-1][n][0] + dungeon[m][n]
-                scores[m][n][1] = scores[m-1][n][1] if scores[m-1][n][1] < scores[m][n][0] else scores[m][n][0]
-            else:
-                scores[m][n][0] = scores[m][n-1][0] + dungeon[m][n]
-                scores[m][n][1] = scores[m][n-1][1] if scores[m][n-1][1] < scores[m][n][0] else scores[m][n][0]
-        elif m > 0:
-            scores[m][n][0] = scores[m-1][n][0] + dungeon[m][n]
-            scores[m][n][1] = scores[m-1][n][1] if scores[m-1][n][1] < scores[m][n][0] else scores[m][n][0]
-        elif n > 0:
-            scores[m][n][0] = scores[m][n-1][0] + dungeon[m][n]
-            scores[m][n][1] = scores[m][n-1][1] if scores[m][n-1][1] < scores[m][n][0] else scores[m][n][0]
-        pprint(scores)
-        return
+        if m >= len(scores) or m < 0 or n >= len(scores[0]) or n < 0:
+            return None
+        if scores[m][n] is not None:
+            return scores[m][n]
+
+        rightScore = self.findMinScore(dungeon, scores, m, n+1)
+        downScore = self.findMinScore(dungeon, scores, m+1, n)
+
+        prevScore = None
+
+        
+
+        if rightScore is None and downScore is None:
+            scores[m][n] = 1 - dungeon[m][n]
+        elif rightScore is None:
+            scores[m][n] = downScore - dungeon[m][n]
+        elif downScore is None:
+            scores[m][n] = rightScore - dungeon[m][n]
+        else:
+            scores[m][n] = min(downScore, rightScore) - dungeon[m][n]
+
+        if scores[m][n] <= 0:
+            scores[m][n] = 1
+
+        # print m, n
+        # pprint(scores)
+
+        return scores[m][n]
 
 
-board = [[-2, -3, 3], [-5, -10, 1], [10, 30, -5]]
-board = [[1,-3,3],[0,-2,0],[-3,-3,-3]]
-# board = [[100]]
+# board = [[-2, -3, 3], [-5, -10, 1], [10, 30, -5]]
+# board = [[1,-3,3],[0,-2,0],[-3,-3,-3]]
+board = [[100]]
+# board = [[0, -3]]
 sol = Solution()
 print sol.calculateMinimumHP(board)
